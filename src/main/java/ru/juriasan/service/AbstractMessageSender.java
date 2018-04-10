@@ -7,6 +7,12 @@ import ru.juriasan.domain.Subscriber;
 import java.util.Objects;
 import java.util.concurrent.*;
 
+/**
+ * Implements common functionality of Message Sender.
+ *
+ * the 'send' method for single subscriber is not implemented and
+ * should be implemented in child classes.
+ */
 public abstract class AbstractMessageSender implements MessageSender {
 
     private static final Logger logger = Logger.getLogger(AbstractMessageSender.class);
@@ -52,9 +58,18 @@ public abstract class AbstractMessageSender implements MessageSender {
             }
             else logger.info(String.format("Subscriber %s is not on topic %s", subscriber.getUrl(), topicName));
         }
+        else  {
+            logger.info(String.format("Cannot unsubscribe. The topic %s does not exist.", topicName));
+        }
     }
 
-    //sends message to all subscribers in all topics mentioned in message
+    /**
+     * Retrieves topic list in the message.
+     * Submits an asynchronious task to handle subscribes of each topic.
+     *  For every subscriber submits an asynchronious task to send a message.
+     * @param message A message instance, contains the list of topics and
+     *                String message content.
+     */
     public void send(Message message) {
         if (message == null || message.getTopics() == null) {
             logger.info("Cannot send message: message is null or topics are absent");
